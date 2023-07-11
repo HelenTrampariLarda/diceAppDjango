@@ -1,0 +1,174 @@
+<HTML>
+
+    <body>
+        <h1>Press the button to play</h1>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js" integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <form id="form1" method="POST" action = "{% url 'test' %}">
+
+            {% csrf_token %}
+            
+            <!-- input for rB to store -->
+            <input type="hidden" id="client_rB" name="client_rB_hash">
+            <button type="button" id="click_button" onclick="myFunction()" >Play</button>
+
+            <!-- hidden button clicked by code send data to server (send rB) -->
+            <button type="submit" id="submit-button" style="display: none;" >Submit</button>
+        </form>
+        
+        {% if h_commit %}
+        <script >
+            window.onload = (event)=> {
+                //console.log('Page loaded ');
+                localStorage.setItem("h_commit","{{h_commit}}");
+
+                //check if stored correctly
+                const t= localStorage.getItem("h_commit")
+                //console.log("h_commit = ",t)
+
+                //kalei tin clientnumber()
+                client_number()
+            };
+        </script>    
+        {% endif %}
+
+
+        <form id="form2" method="POST" action = "{% url 'receive' %}">
+
+            {% csrf_token %}
+            
+            <!-- input for dice to store -->
+            <input type="hidden" id="dice" name="dice2">
+            <button type="button" id="click_button2" style="display: none;" >Play</button>
+
+            <!-- hidden button clicked by code send data to server (send rB) -->
+            <button type="submit" id="submit-button2" style="display: none;" >Submit</button>
+        </form>
+
+
+        {% if result %}
+        <script >
+            window.onload = (event)=> {
+                //console.log('Page loaded for result');
+                localStorage.setItem("result","{{result}}");
+
+                //bring data from temporary storage
+                const h_sent= localStorage.getItem("h_commit")
+                //console.log("h_commit = ",h_sent)
+                const rB_saved = localStorage.getItem("rB")
+                //for checking if rB_saved is same with rB_send
+                
+                rB_sent = "{{rB}}"
+                //console.log("rB_sent is = "+rB_sent+ " rb stored = "+rB_saved)
+
+                result = "{{result}}"
+                localStorage.setItem("result", "{{result}}")
+                //console.log("result is "+result)
+
+                rA = "{{rA}}"
+                //console.log("rA is "+ rA)
+
+                server_dice = "{{s_dice}}"
+                //kalei function gia emfanisi apotelesmatos print (form)
+                check(rA,rB_saved,rB_sent,h_sent,result,server_dice)
+
+            };
+        </script>    
+        {% endif %}
+
+        <form id="form3"  action = "">
+            <label for="cdice">Your dice number:</label>
+            <input type="text" id="dice_client" name="rdice_client_print"><br>
+            <label for="sdice">Server's dice number:</label>
+            <input type="text" id="dice_server" name="dice_server_print"><br>
+            <label for="winner">The resut is:</label>
+            <input type="text" id="result" name="result_print"><br>
+            <label for="servercheat">Did server cheat? :</label>
+            <input type="text" id="cheat" name="cheat_print">
+            
+            <button type="button" id="click_button3" style="display: none;" >Play</button>
+
+            <!-- hidden button clicked by code send data to server (send rB) -->
+            <button type="submit" id="submit-button3" style="display: none;" >Submit</button>
+        </form>
+
+        <script >
+            function myFunction(){
+                //rb 
+                //kefalaia mikra arithoi 10 stoixeia
+                //------------------RB GENERATION-----------------------------------
+                const rB_func = (length) => {
+                    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                    const charactersLength = characters.length;
+                    let rB_ = '';
+
+                    // Create an array of 32-bit unsigned integers
+                    const randomValues = new Uint32Array(length);
+
+                    // Generate random values
+                    window.crypto.getRandomValues(randomValues);
+                    randomValues.forEach((value) => {
+                        rB_ += characters.charAt(value % charactersLength);
+                    });
+                return rB_;
+                }
+
+                //--------------------RB GENERATION---------------------------------
+                //local storage --> client dice & rB
+                localStorage.setItem("rB",rB_func(10));
+                //console.log("rb from client interface = ",rB_func(10));
+
+                rB=localStorage.getItem("rB");
+    
+                //pernas sto hidden to rb
+                document.getElementById("client_rB").value = rB;
+                //kaleis submit button
+                document.getElementById('submit-button').click();
+            };
+            function client_number(){
+                //client_dice = random.randrange(1, 7)
+                client_dice = getRandomIntInclusive(1,6)
+                //---------------CLIENT DICE GENERATOR----------------------------------------
+
+                function getRandomIntInclusive(min, max) {
+                    min = Math.ceil(min);
+                    max = Math.floor(max);
+                    return Math.floor(Math.random() * (max - min + 1) + min);
+                }
+
+                //---------------CLIENT DICE GENERATOR END------------------------------------
+                localStorage.setItem("dice",client_dice);
+                //console.log("client dice from client interface = ",client_dice);
+
+                document.getElementById("dice").value = client_dice;
+                document.getElementById('submit-button2').click();
+            };
+            function check(ra,rb_saved,rb_sent,h,r,dice){
+                //check if h_sent is same with h_stored
+                string_for_hash = dice+ra+rb_saved
+                //console.log("string hash client "+string_for_hash)
+
+                h_calc = CryptoJS.SHA256(string_for_hash).toString();
+                if(h_calc==h){
+                    cheat="NO cheating of the server"
+                    //console.log("correct");
+                }
+                else{
+                    cheat="YES cheating of the server"
+                    //console.log("error");
+                }
+                //print the winner
+                document.getElementById('dice_server').value = dice;
+                document.getElementById('dice_client').value = localStorage.getItem("dice");
+                document.getElementById('result').value = r;
+                document.getElementById('cheat').value = cheat;
+            };
+            </script>  
+
+
+    </body>
+
+</HTML>
+
+    
