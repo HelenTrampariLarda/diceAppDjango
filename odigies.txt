@@ -1,0 +1,19 @@
+Δουλέψαμε με Django project σε python.
+
+Προκειμένου να δουλέψει το Django project χρειάζεται να είναι εγκατεστημένα τα:
+- Python 3.x
+- Django
+
+Για να τρέξει το project, πηγαίνεις στο φάκελο που βρίσκεται το manage.py αρχείο (/diceGame) και τρέχεις την εντολή: python3 manage.py runserver
+
+Με αυτό τον τρόπο τρέχει ο server του Django και η σελίδα είναι διαθέσιμη στον ιστότοπο 
+http://127.0.0.1:8000/
+
+Στον ιστότοπο αυτόν για να παίξει το παιχνίδι ζαριών με τον server το μόνο που χρειάζεται είναι να πατήσεις το κουμπί play.
+
+
+Σημείωση: στον http://127.0.0.1:8000/ είναι η αρχική σελίδα και στον http://127.0.0.1:8000/receive είναι η σελίδα που δείχνει τον νικητή.
+
+Στο αρχείο /diceGame/diceApp/views.py /diceGame/diceApp/urls.py βρίσκεται το backend του app και στο /diceGame/templates/home.html βρίσκεται το frontend.
+
+Στο αρχείο /diceGame/diceGame/urls.py γίνεται η σύνδεση του app με το project και στο και στο /diceGame/diceGame/settings.py είναι το configuration και όλες οι ρυθμίσεις που χρειάζονται.
